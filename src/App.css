@@ -1,0 +1,19 @@
+.paintarea {
+}
+
+.paintareacell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid grey;
+}
+
+.paletteitem {
+  width: 40px;
+  height: 40px;
+  border: 1px solid grey;
+  display: inline-block;
+}
+
+.paletteitem.selected {
+  border: 1px solid red;
+}
