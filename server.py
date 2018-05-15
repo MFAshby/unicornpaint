@@ -61,6 +61,7 @@ def send_static(path):
 
 def main():
     try:
+        print("Serving on port 3001")
         server = pywsgi.WSGIServer(('', 3001), app, handler_class=WebSocketHandler)
         server.serve_forever()
     except:
