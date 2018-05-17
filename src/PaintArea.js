@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { rgb, getPixel } from './Utils'
 
 /**
  * Expects props: 
@@ -44,29 +45,33 @@ export default class PaintArea extends Component {
   }
 
   render() {
-    let cells = this.props.data.map((row, iy) => {
-      let rowCells = row.map((cell, ix) => {
-          let r = cell[0]
-          let g = cell[1]
-          let b = cell[2]
-          return <td
-            onMouseMove={() => this.handleMouseMove(ix, iy)}
-            onClick={() => this.props.onTool(ix, iy)}
-            className="paintareacell"
-            style={{
-              background: `rgb(${r},${g},${b})`
-            }}
-            key={(ix * 100000) + iy}/>
-      })
-      return <tr key={iy}>{rowCells}</tr>
-    })
+    let data = this.props.data
+    let height = data[0] ? data[0].length : 0
+    let rows = []
+    for (var y=height-1; y>=0; y--) {
+      let cells = []
+      for (var x=0; x<data.length; x++) {
+        let {r, g, b} = rgb(getPixel(x, y, data))
+        let ix = x
+        let iy = y
+        cells.push(<td
+          onMouseMove={() => this.handleMouseMove(ix, iy)}
+          onClick={() => this.props.onTool(ix, iy)}
+          className="paintareacell"
+          style={{
+            background: `rgb(${r},${g},${b})`
+          }}
+          key={(ix * 100000) + iy}/>)
+      }
+      rows.push(<tr key={y}>{cells}</tr>)
+    }
     
     return (
       <table 
         className="paintarea"
         draggable={false}>
         <tbody>
-          {cells}
+          {rows}
         </tbody>
       </table>
     )

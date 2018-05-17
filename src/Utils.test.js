@@ -1,4 +1,4 @@
-import { colorEqual, coordsEqual, xy, rgb, findContiguousPixels } from './Utils'
+import { colorEqual, coordsEqual, xy, rgb, findContiguousPixels, rotatePixelsClock, rotatePixelsCounterClock } from './Utils'
 
 test('test colorEqual function', () => {
     expect(colorEqual([0, 0, 0], [0, 0, 0]))
@@ -78,4 +78,38 @@ test('contiguousPixels', () => {
         [[0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]]
     ]).length)
         .toBe(4)
+})
+
+test('rotate clockwise function', () => {
+    let rot1 = rotatePixelsClock([
+        [[0, 0, 1], [0, 0, 0], [0, 0, 0], [0, 0, 2]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 4], [0, 0, 0], [0, 0, 0], [0, 0, 3]]
+    ])
+    expect(rot1[0][3][2])
+    .toBe(1)
+    expect(rot1[3][3][2])
+    .toBe(2)
+    expect(rot1[3][0][2])
+    .toBe(3)
+    expect(rot1[0][0][2])
+    .toBe(4)
+})
+
+test('rotate counter-clockwise function', () => {
+    let rot1 = rotatePixelsCounterClock([
+        [[0, 0, 1], [0, 0, 0], [0, 0, 0], [0, 0, 2]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        [[0, 0, 4], [0, 0, 0], [0, 0, 0], [0, 0, 3]]
+    ])
+    expect(rot1[0][3][2])
+    .toBe(3)
+    expect(rot1[3][3][2])
+    .toBe(4)
+    expect(rot1[3][0][2])
+    .toBe(1)
+    expect(rot1[0][0][2])
+    .toBe(2)
 })

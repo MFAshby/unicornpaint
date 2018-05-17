@@ -52,11 +52,11 @@ function coordsEqual(item1, item2) {
 }
 
 function getPixel(x, y, pixels) {
-    let row = pixels[y]
-    if (!row) {
+    let column = pixels[x]
+    if (!column) {
         return
     }
-    return row[x]
+    return column[y]
 }
 
 function findContiguousPixels(x, y, pixels, targetColor = getPixel(x, y, pixels), contiguousPixels=[[x, y]]) {
@@ -90,7 +90,48 @@ function findContiguousPixels(x, y, pixels, targetColor = getPixel(x, y, pixels)
   
     return contiguousPixels
 }
-  
+
+function rotatePixelsCounterClock(pixels) {
+    let rotateClock = (x, y, width, height) => {
+        return {
+            newx: -y + (width - 1), 
+            newy : x
+        }
+    }
+    return transformPixels(pixels, rotateClock)
+}
+
+function rotatePixelsClock(pixels) {
+    let rotateClock = (x, y, width, height) => {
+        return {
+            newx: y, 
+            newy : - x + (height - 1)
+        }
+    }
+    return transformPixels(pixels, rotateClock)
+}
+
+function transformPixels(pixels, transform) {
+    let width = pixels.length
+    let height = pixels[0].length
+    let newPixels = []
+    for (var x = 0; x < width; x++) {
+        let column = []
+        for (var y = 0; y < height; y++) {
+            column.push([0, 0, 0])
+        }
+        newPixels.push(column)
+    }
+    
+    for (var x = 0; x < width; x++) {
+      for (var y = 0; y < height; y++) {
+        let px = getPixel(x, y, pixels)
+        let {newx, newy} = transform(x, y, width, height)
+        newPixels[newx][newy] = px
+      }
+    }
+    return newPixels
+}
 
 export {
     xy,
@@ -98,6 +139,8 @@ export {
     colorEqual,
     coordsEqual,
     findContiguousPixels,
-    getPixel
+    getPixel,
+    rotatePixelsClock,
+    rotatePixelsCounterClock
 }
 
