@@ -6,5 +6,7 @@ services:
         ports: 
             - "3001:3001"
         volumes:
-            - "/dev/spidev0.0:/dev/spidev0.0"
             - "/home/pi/docker/unicornpaint/saves/:/saves/"
+        devices:
+            - "/dev/spidev0.0:/dev/spidev0.0"
+        restart: always

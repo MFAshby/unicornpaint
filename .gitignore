@@ -9,6 +9,7 @@
 # production
 /build/
 /saves/
+/permasaves/
 /__pycache__
 
 # misc
