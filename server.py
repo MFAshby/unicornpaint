@@ -22,7 +22,7 @@ LOAD = 'LOAD'
 
 # GLobal references to app & clients 
 all_clients = set()
-app = Flask(__name__, static_folder='build/')
+app = Flask(__name__, static_folder='')
 sockets = Sockets(app)
 
 def send_state():
@@ -71,7 +71,7 @@ def load(saveName):
             for y, pixel in enumerate(row):
                 unicorn.set_pixel(x, y, *pixel)
         unicorn.show()
-    
+
 @sockets.route('/ws')
 def do_websocket(websocket):
     global all_clients
