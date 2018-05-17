@@ -29,7 +29,7 @@ def send_state():
     global all_clients
     state = {
         "saves": os.listdir(SAVES_DIR),
-        "pixels": unicorn.get_pixels()
+        "pixels": unicorn.get_pixels().tolist()
     }
     stateJson = json.dumps(state)
     for client in all_clients:
