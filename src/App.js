@@ -142,8 +142,8 @@ class App extends Component {
   }
 
   _connectWebsocket() {
-    // this._websocket = new WebSocket('ws://' + window.location.hostname + ':3001/ws')
-    this._websocket = new WebSocket('ws://shinypi:3001/ws')
+    let webSocketProto = window.location.protocol === "https" ? "wss" : "ws"
+    this._websocket = new WebSocket(`${webSocketProto}://${window.location.host}/ws`)
     this._websocket.onmessage = this._onMessage
     this._websocket.onopen = this._onOpen
     this._websocket.onclose = this._onClose
