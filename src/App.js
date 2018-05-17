@@ -1,150 +1,80 @@
 import React, { Component } from 'react'
-import logo from './logo.svg'
 import './App.css'
+import { rgb, xy, findContiguousPixels, getPixel } from './Utils'
+import { setPixel, clear, noop, save, load } from './Actions'
+import Palette from './Palette'
+import PaintArea from './PaintArea'
+import Toolkit from './Toolkit'
+import ColorIndicator from './ColorIndicator'
+import ConnectedIndicator from './ConnectedIndicator'
+import LoadDialog from './LoadDialog'
+import SaveDialog from './SaveDialog'
 
-const NO_OP = 'NO_OP'
-const SET_PIXEL = 'SET_PIXEL'
-const CLEAR = 'CLEAR'
-
-function sendAction(websocket, action) {
-  let actionStr = JSON.stringify(action)
-  websocket.send(actionStr)
-}
-
-function setPixel(websocket, x, y, r, g, b) {
-  sendAction(websocket, {
-    type: SET_PIXEL,
-    x: x,
-    y: y,
-    r: r, 
-    g: g,
-    b: b
-  })
-}
-
-function clear(websocket) {
-  sendAction(websocket, { type: CLEAR })
-}
-
-function noop(websocket) {
-  sendAction(websocket, { type: NO_OP })
-}
-
-function rgb(item) {
-  return {
-    r: item[0],
-    g: item[1],
-    b: item[2]
-  }
-}
-
-const colorPalette = [
-  [0,0,0],
-  [132,0,0],
-  [0,132,0],
-  [132,132,0],
-  [0,0,132],
-  [132,0,132],
-  [0,132,132],
-  [132,132,132],
-  [198,198,198],
-  [255,0,0],
-  [0,255,0],
-  [255,255,0],
-  [0,0,255],
-  [255,0,255],
-  [0,255,255],
-  [255,255,255],
-]
-
-
-class Palette extends Component {
-  render() {
-    let paletteListItems = colorPalette.map((item) => {
-      var className = "paletteitem"
-      let { r, g, b } = rgb(item)
-      let selected = rgb(this.props.selectedColor)
-      if (r === selected.r && g === selected.g && b === selected.b) {
-        className += " selected"
-      }
-      return <div
-        onClick={() => this.props.onSelectColor([r, g, b])}
-        style={{background: `rgb(${r},${g},${b})`}} 
-        className={className}
-        key={r*10000+g*1000+b}/>
-    })
-    return (
-      <div className="palette">
-        {paletteListItems}
-      </div>)
-  }
-}
-
-class PaintArea extends Component {
-  constructor(props) {
-    super(props)
-    this.handleMouseMove = this.handleMouseMove.bind(this)
-
-    this._onMouseDown = this._onMouseDown.bind(this)
-    this._onMouseUp = this._onMouseUp.bind(this)
-    this.state = {
-      mouseDown: false
+const tools = [
+  { 
+    name: "paint", 
+    icon: "fas fa-pencil-alt", 
+    action: function (x, y) {
+      let { r, g, b } = rgb(this.state.selectedColor)
+      setPixel(this._websocket, x, y, r, g, b)    
     }
-  }
-
-  _onMouseDown() {
-    this.setState({ mouseDown: true })
-  }
-
-  _onMouseUp() {
-    this.setState({ mouseDown: false })
-  }
-
-  componentWillMount() {
-    document.addEventListener('mousedown', this._onMouseDown)
-    document.addEventListener('mouseup', this._onMouseUp)
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this._onMouseDown)
-    document.removeEventListener('mouseup', this._onMouseUp)
-  }
-
-  handleMouseMove(x, y) {
-    if (this.state.mouseDown) {
-      this.props.onTool(x, y)
-    }
-  }
-
-  render() {
-    let cells = this.props.data.map((row, iy) => {
-      let rowCells = row.map((cell, ix) => {
-          let r = cell[0]
-          let g = cell[1]
-          let b = cell[2]
-          return <td
-            onMouseMove={() => this.handleMouseMove(ix, iy)}
-            onClick={() => this.props.onTool(ix, iy)}
-            className="paintareacell"
-            style={{
-              background: `rgb(${r},${g},${b})`
-            }}
-            key={(ix * 100000) + iy}/>
+  },
+  { 
+    name: "fill", 
+    icon: "fab fa-bitbucket", 
+    action: function (x, y) {
+      let pixelsToColor = findContiguousPixels(x, y, this.state.pixels)
+      pixelsToColor.forEach((coord) => {
+        let px = { ...xy(coord), ...rgb(this.state.selectedColor)}
+        setPixel(this._websocket, px.x, px.y, px.r, px.g, px.b)
       })
-      return <tr key={iy}>{rowCells}</tr>
-    })
-    
-    return (
-      <table 
-        className="paintarea"
-        draggable={false}>
-        <tbody>
-          {cells}
-        </tbody>
-      </table>
-    )
-  }
-}
+    }
+  },
+  { 
+    name: "erase", 
+    icon: "fas fa-eraser", 
+    action: function (x, y) {
+      setPixel(this._websocket, x, y, 0, 0, 0)    
+    },
+  },
+  { 
+    name: "pick", 
+    icon: "fas fa-eye-dropper", 
+    action: function (x, y) {
+      let color = getPixel(x, y, this.state.pixels)
+      this.setState({ selectedColor: color })
+    },
+  },
+  // { 
+  //   name: "lighten", 
+  //   icon: "far fa-sun"
+  // },
+  // { 
+  //   name: "darken", 
+  //   icon: "fas fa-sun"
+  // },
+  { 
+    name: "save", 
+    icon: "fas fa-save", 
+    onSelect: function () {
+      this.setState({ showingSave: true })
+    }
+  },
+  { 
+    name: "load", 
+    icon: "fas fa-save", 
+    onSelect: function () {
+      this.setState({ showingLoad: true })
+    }
+  },
+  { 
+    name: "trash", 
+    icon: "fas fa-trash", 
+    onSelect: function () {
+      clear(this._websocket)
+    }
+  },
+]
 
 class App extends Component {
   constructor(props) {
@@ -152,28 +82,31 @@ class App extends Component {
 
     this.state = {
       connected: false,
+      // Data from server
       pixels: [],
-      selectedColor: [0, 0, 0]
+      saves: [],
+      // Local data
+      selectedColor: [0, 0, 0],
+      selectedTool: tools[0],
+      showingSave: false,
+      showingLoad: false,
     }
+    this._applyTool = this._applyTool.bind(this)
+    this._selectTool = this._selectTool.bind(this)
     this._connectWebsocket = this._connectWebsocket.bind(this)
     this._onMessage = this._onMessage.bind(this)
     this._onOpen = this._onOpen.bind(this)
     this._onClose = this._onClose.bind(this)
     this._onError = this._onError.bind(this)
-
-    this.paintCell = this.paintCell.bind(this)
+    this._loadDrawing = this._loadDrawing.bind(this)
+    this._saveDrawing = this._saveDrawing.bind(this)
     this._connectWebsocket()
   }
 
   _onMessage({data}) {
-    let pixels = JSON.parse(data)
-    pixels.forEach(row => {
-      let rowNums = row.map((col) => col.some((it) => it > 0))
-      console.log(...rowNums)
-    });
-
+    let state = JSON.parse(data)
     this.setState({
-      pixels: pixels
+      ...state // Includes pixels and saves
     })
   }
 
@@ -200,24 +133,71 @@ class App extends Component {
     this._websocket.onerror = this._onError
   }
 
-  paintCell(x, y) {
-    let { r, g, b } = rgb(this.state.selectedColor)
-    setPixel(this._websocket, x, y, r, g, b)
+  _applyTool(x, y) {
+    let tool = this.state.selectedTool
+    if (!tool) {
+      return
+    }
+    let action = tool.action
+    if (!action) {
+      return 
+    }
+    action.bind(this)(x, y)
+  }
+
+  _selectTool(tool) {
+    let selectAction = tool.onSelect
+    if (selectAction) {
+      selectAction.bind(this)()
+    } else {
+      this.setState({selectedTool: tool})
+    }
+  }
+
+  _loadDrawing(name) {
+    load(this._websocket, name)
+    this.setState({showingLoad: false})
+  }
+
+  _saveDrawing(name) {
+    save(this._websocket, name)
+    this.setState({showingSave: false})
   }
 
   render() {
-    let connectedText = this.state.connected ? "Connected" : "Not connected"
     return (
       <div className="App">
-        <div>
-          <span>{connectedText}</span>
-        </div>
+        <ConnectedIndicator connected={this.state.connected}/>
+        <Toolkit
+          tools={tools}
+          selectedTool={this.state.selectedTool}
+          onSelectTool={this._selectTool}/>
         <PaintArea 
           data={this.state.pixels}
-          onTool={this.paintCell}/>
+          onTool={this._applyTool}/>
         <Palette 
           selectedColor={this.state.selectedColor}
           onSelectColor={(color) => this.setState({selectedColor: color})} />
+        <ColorIndicator color={this.state.selectedColor}/>
+        <div>
+        {
+          this.state.showingLoad 
+          && <LoadDialog 
+            saves={this.state.saves}
+            onLoad={(drawing) => this._loadDrawing(drawing)}
+            onClose={() => this.setState({showingLoad: false})}/>
+        }
+        </div>
+        <div>
+        {
+          this.state.showingSave
+          && <SaveDialog 
+            saves={this.state.saves}
+            onSave={(name) => this._saveDrawing(name)}
+            onClose={() => this.setState({showingSave: false})}/>
+        }
+        </div>
+
       </div>
     );
   }

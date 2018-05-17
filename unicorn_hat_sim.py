@@ -27,7 +27,8 @@ class UnicornHatSim(object):
         pygame.init()
         pygame.display.set_caption("Unicorn HAT simulator")
         self.screen = pygame.display.set_mode([self.window_width, self.window_height])
-        self.clear()
+        # self.clear()
+        self.screen.fill((0, 0, 0))
 
     def set_pixel(self, x, y, r, g, b):
         i = (x * self.width) + y
@@ -55,7 +56,8 @@ class UnicornHatSim(object):
                 self.draw_led(x, y)
 
     def show(self):
-        self.clear()
+        # self.clear()
+        self.screen.fill((0, 0, 0))
         self.draw()
         pygame.display.flip()
 
@@ -81,8 +83,9 @@ class UnicornHatSim(object):
         self._rotation = int(round(r/90.0)) % 3
 
     def clear(self):
-        self.screen.fill((0, 0, 0))
-
+        # self.screen.fill((0, 0, 0))
+        self.pixels = [(0, 0, 0)] * self.width * self.height
+        
     def get_rotation(self):
         return self._rotation * 90
 

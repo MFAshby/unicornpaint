@@ -7,6 +7,7 @@
     "@fortawesome/react-fontawesome": "0.0.20",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "react-modal-dialog": "Dean177/react-modal-dialog#support/bump-react",
     "react-scripts": "1.1.4"
   },
   "scripts": {
