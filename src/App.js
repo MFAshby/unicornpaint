@@ -9,6 +9,7 @@ import ColorIndicator from './ColorIndicator'
 import ConnectedIndicator from './ConnectedIndicator'
 import LoadDialog from './LoadDialog'
 import SaveDialog from './SaveDialog'
+import { Timeline } from 'react-twitter-widgets'
 
 const tools = [
   {
@@ -208,6 +209,11 @@ class App extends Component {
           selectedColor={this.state.selectedColor}
           onSelectColor={(color) => this.setState({ selectedColor: color })} />
         <ColorIndicator color={this.state.selectedColor} />
+        {/* Embedded tweet showing live stream */}
+        <Timeline dataSource={{
+          sourceType: 'profile',
+          screenName: 'UnicornPaint'
+        }}/>
         <div>
           {
             this.state.showingLoad

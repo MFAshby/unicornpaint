@@ -8,7 +8,8 @@
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-modal-dialog": "Dean177/react-modal-dialog#support/bump-react",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-twitter-widgets": "^1.7.1"
   },
   "scripts": {
     "start": "react-scripts start",
