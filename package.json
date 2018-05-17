@@ -12,7 +12,7 @@
     "react-twitter-widgets": "^1.7.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "export PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

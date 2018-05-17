@@ -143,8 +143,9 @@ class App extends Component {
   }
 
   _connectWebsocket() {
-    let webSocketProto = window.location.protocol === "https" ? "wss" : "ws"
-    this._websocket = new WebSocket(`${webSocketProto}://${window.location.host}/ws`)
+    let webSocketProto = window.location.protocol === "https:" ? "wss:" : "ws:"
+    // let webSocketProto = "wss"
+    this._websocket = new WebSocket(`${webSocketProto}//${window.location.host}/ws`)
     this._websocket.onmessage = this._onMessage
     this._websocket.onopen = this._onOpen
     this._websocket.onclose = this._onClose
