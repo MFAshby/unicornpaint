@@ -24,21 +24,39 @@ const colorPalette = [
   export default class Palette extends Component {
     render() {
       let paletteListItems = colorPalette.map((item) => {
-        var className = "paletteitem"
         let { r, g, b } = rgb(item)
         let selected = rgb(this.props.selectedColor)
-        if (r === selected.r && g === selected.g && b === selected.b) {
-          className += " selected"
-        }
+        let isSelected = r === selected.r && g === selected.g && b === selected.b
+
+        let style = Object.assign({},
+          {background: `rgb(${r},${g},${b})`},
+          styles.paletteItem,
+          isSelected && styles.selected
+        )
+
         return <div
           onClick={() => this.props.onSelectColor([r, g, b])}
-          style={{background: `rgb(${r},${g},${b})`}} 
-          className={className}
+          style={style} 
           key={r*10000+g*1000+b}/>
       })
+      let list1 = paletteListItems.slice(0, paletteListItems.length / 2)
+      let list2 = paletteListItems.slice(paletteListItems.length / 2)
       return (
-        <div className="palette">
-          {paletteListItems}
+        <div>
+          {list1}<br/>
+          {list2}
         </div>)
+    }
+  }
+
+  const styles = {
+    paletteItem: {
+      width: "30px",
+      height: "30px",
+      border: "3px solid black",
+      display: "inline-block",
+    },
+    selected: {
+      border: "3px solid red"
     }
   }

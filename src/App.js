@@ -144,7 +144,9 @@ class App extends Component {
 
   _connectWebsocket() {
     let webSocketProto = window.location.protocol === "https" ? "wss" : "ws"
-    this._websocket = new WebSocket(`${webSocketProto}://${window.location.host}/ws`)
+    let host = window.location.host
+    // let host = "shinypi:3001"
+    this._websocket = new WebSocket(`${webSocketProto}://${host}/ws`)
     this._websocket.onmessage = this._onMessage
     this._websocket.onopen = this._onOpen
     this._websocket.onclose = this._onClose
@@ -196,24 +198,44 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <ConnectedIndicator connected={this.state.connected} />
-        <Toolkit
-          tools={tools}
-          selectedTool={this.state.selectedTool}
-          onSelectTool={this._selectTool} />
-        <PaintArea
-          data={this.state.pixels}
-          onTool={this._applyTool} />
-        <Palette
-          selectedColor={this.state.selectedColor}
-          onSelectColor={(color) => this.setState({ selectedColor: color })} />
-        <ColorIndicator color={this.state.selectedColor} />
-        {/* Embedded tweet showing live stream */}
-        <Timeline dataSource={{
-          sourceType: 'profile',
-          screenName: 'UnicornPaint'
-        }}/>
+      <div className="container">
+        <div className="header">
+          <h1>Unicorn Paint!</h1>
+          <ConnectedIndicator connected={this.state.connected} />
+        </div>
+        <div className="paintContainer">
+          <div className="paint">
+            <PaintArea
+              data={this.state.pixels}
+              onTool={this._applyTool} />
+          </div>
+          <div className="tools">
+            <Toolkit
+              tools={tools}
+              selectedTool={this.state.selectedTool}
+              onSelectTool={this._selectTool} />
+          </div>
+          <div className="palette">
+            <Palette
+              selectedColor={this.state.selectedColor}
+              onSelectColor={(color) => this.setState({ selectedColor: color })} />
+          </div>  
+          <div className="paintCol">
+            <ColorIndicator color={this.state.selectedColor} />
+          </div>
+        </div>
+        <div className="liveFeed">
+          <Timeline 
+            dataSource={{
+              sourceType: 'profile',
+              screenName: 'UnicornPaint',
+            }}
+            options={{
+              tweetLimit: 1,
+              chrome: "noheader nofooter noborders noscrollbar",
+              width: "300px"
+            }}/>
+        </div>
         <div>
           {
             this.state.showingLoad
