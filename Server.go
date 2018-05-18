@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/veandco/go-sdl2/sdl"
+    //"github.com/veandco/go-sdl2/sdl"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -185,7 +185,7 @@ func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleSdlEvents() {
+/*func handleSdlEvents() {
 	running := true
 	for running {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -196,7 +196,7 @@ func handleSdlEvents() {
 			}
 		}
 	}
-}
+}*/
 
 func handleClients() {
 	for {
@@ -222,8 +222,9 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("build")))
 	http.HandleFunc("/ws", upgradeHandler)
 	go http.ListenAndServe(":3001", nil)
-	go handleClients()
-	handleSdlEvents()
+	//go handleClients()
+    handleClients()
+	//handleSdlEvents()
 }
 
 func doBroadcast(obj interface{}) {

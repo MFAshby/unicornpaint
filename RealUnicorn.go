@@ -1,7 +1,8 @@
 package main
 
 import (
-	"golang.org/x/exp/io/spi"
+	//"golang.org/x/exp/io/spi"
+    "github.com/ecc1/spi"
 	"log"
 )
 
@@ -13,14 +14,16 @@ type RealUnicorn struct {
 // NewReal ...
 // Constructs a new real unicorn from fairy dust and sprinkles
 func NewReal() (*RealUnicorn, error) {
-	dev, err := spi.Open(&spi.Devfs{
+	/*dev, err := spi.Open(&spi.Devfs{
 		Dev:      "/dev/spidev0.0",
-		Mode:     spi.Mode0,
+		Mode:     spi.Mode3,
 		MaxSpeed: 9000000,
-	})
+	})*/
+    dev, err := spi.Open("/dev/spidev0.0", 9000000, 0)
 	if err != nil {
 		return nil, err
 	}
+    //dev.SetBitOrder(spi.LSBFirst)
 
 	return &RealUnicorn{
 		BaseUnicorn{
@@ -32,24 +35,26 @@ func NewReal() (*RealUnicorn, error) {
 
 func (u *RealUnicorn) Show() {
 	// Width * height * colours + leading bit
-	width := u.GetWidth()
-	height := u.GetHeight()
-	write := make([]byte, (width*height*3)+1)
+	width := int(u.GetWidth())
+	height := int(u.GetHeight())
+    sz := (width*height*3)+1
+	write := make([]byte, sz)
 
 	// Add the leading bit
 	write[0] = 0x72
 	// Add all the pixel values
 	ix := 1
-	for x := uint8(0); x < width; x++ {
-		for y := uint8(0); y < height; y++ {
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
 			for j := 0; j < 3; j++ {
-				write[ix] = u.pixels[x][y][j]
+				write[ix] = byte(u.pixels[x][y][j])
 				ix++
 			}
 		}
 	}
 	// Write to the device
-	err := u.device.Tx(write, nil)
+	//err := u.device.Tx(write, nil)
+    err := u.device.Transfer(write)
 	if err != nil {
 		log.Printf("Error writing to SPI device %v", err)
 	}

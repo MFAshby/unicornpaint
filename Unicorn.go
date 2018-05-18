@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	// "log"
 )
 
 // Unicorn ...
@@ -32,11 +32,10 @@ type Unicorn interface {
 // if it can't find one then gives you a fake one.
 func GetUnicorn() (unicorn Unicorn, err error) {
 	unicorn, err = NewReal()
-	if err != nil {
-		log.Println("Couldn't get a real unicorn, trying a fake one")
-		unicorn, err = NewFake(uint8(16), uint8(16))
-	}
-	unicorn, err = NewFake(uint8(16), uint8(16))
+	//if err != nil {
+	//	log.Println("Couldn't get a real unicorn, trying a fake one")
+	//	unicorn, err = NewFake(uint8(16), uint8(16))
+	//}
 	return
 }
 
