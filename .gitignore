@@ -11,6 +11,7 @@
 /saves/
 /permasaves/
 /__pycache__
+debug
 
 # misc
 .DS_Store

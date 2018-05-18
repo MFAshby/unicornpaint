@@ -5,10 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Go Server",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceRoot}/Server.go"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}"z
+            "program": "${file}"
         },
         {
             "name": "Python: Attach",
