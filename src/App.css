@@ -1,38 +1,81 @@
-.toolkit {
-  float: right;
-  background: lightblue;
+body {
+    background: black;
+    color: aliceblue;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
-.toolkititem {
-  padding: 5px;
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    grid-template-areas: 
+        "header header"
+        "paint liveFeed";
+    grid-gap: 5px;
+        
 }
 
-.toolkititem.selected {
-  background: lightcoral;
+@media (max-width: 760px) {
+    .container {
+        display: grid;
+        grid-template-columns: 1fr;
+    
+        grid-template-areas: 
+            "header"
+            "paint"
+            "liveFeed";
+    }   
 }
 
-/* .paintarea {
-
-} */
-
-.paintareacell {
-  width: 20px;
-  height: 20px;
-  border: 1px solid grey;
+.header {
+    grid-area: header;
 }
 
-.paletteitem {
-  width: 30px;
-  height: 30px;
-  border: 3px solid black;
-  display: inline-block;
+.paint {
+    grid-area: paint;
 }
 
-.paletteitem.selected {
-  border: 3px solid red;
+.liveFeed {
+    grid-area: liveFeed;
 }
 
-.colorIndicator {
-  width: 100px;
-  height: 100px;
+.paintContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1frpx;
+
+    grid-template-areas: 
+        "paint paint tools"
+        "paintCol palette tools";
+}
+
+.paint {
+    grid-area: paint;
+}
+
+.tools {
+    grid-area: tools;
+    display: flex;
+    flex-direction: column;
+    width: 45px;
+}
+
+.palette {
+    grid-area: palette;
+    display: flex;
+    flex-direction: row;
+}
+
+.paintCol {
+    grid-area: paintCol;
+}
+
+.paintAreaCell {
+    width: "20px";
+    height: "20px";
+    min-width: "20px";
+    min-height: "20px";
+    max-width: "20px";
+    max-height: "20px";
+    border: "1px solid grey";
 }

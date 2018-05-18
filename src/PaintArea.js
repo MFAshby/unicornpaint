@@ -57,9 +57,9 @@ export default class PaintArea extends Component {
         cells.push(<td
           onMouseMove={() => this.handleMouseMove(ix, iy)}
           onClick={() => this.props.onTool(ix, iy)}
-          className="paintareacell"
           style={{
-            background: `rgb(${r},${g},${b})`
+            background: `rgb(${r},${g},${b})`,
+            ...styles.paintAreaCell
           }}
           key={(ix * 100000) + iy}/>)
       }
@@ -68,12 +68,23 @@ export default class PaintArea extends Component {
     
     return (
       <table 
-        className="paintarea"
         draggable={false}>
         <tbody>
           {rows}
         </tbody>
       </table>
     )
+  }
+}
+
+const styles = {
+  paintAreaCell: {
+    width: "20px",
+    height: "20px",
+    minWidth: "20px",
+    minHeight: "20px",
+    maxWidth: "20px",
+    maxHeight: "20px",
+    border: "1px solid grey",
   }
 }

@@ -4,11 +4,11 @@ import './fontawesome-all.min.js'
 class ToolKitItem extends Component {
   render() {
     let iconClass = this.props.tool.icon + " fa-2x" 
-    var divClass = "toolkititem"
+    let style = styles.toolkititem
     if (this.props.selected) {
-      divClass += " selected"
+      style = Object.assign({}, style, styles.selected)
     }
-    return <div className={divClass}
+    return <div style={style}
         onClick={() => this.props.onSelectTool(this.props.tool)}>
         <i className={iconClass}></i>
       </div>
@@ -24,8 +24,20 @@ export default class Toolkit extends Component {
         selected={tool === this.props.selectedTool}
         onSelectTool={this.props.onSelectTool}/>
     })
-    return <div className="toolkit">
+    return <div style={styles.toolkit}>
       {toolComponents}
     </div>
+  }
+}
+
+const styles = {
+  toolkit: {
+    background: "grey"
+  },
+  toolkititem: {
+    padding: "5px",
+  },
+  selected: {
+    background: "lightcoral"
   }
 }
