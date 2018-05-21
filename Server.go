@@ -3,17 +3,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gorilla/websocket"
-    //"github.com/veandco/go-sdl2/sdl"
+	//"github.com/veandco/go-sdl2/sdl"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path"
 	"strings"
+
+	"github.com/MFAshby/unicornpaint/unicorn"
 )
 
 var (
-	unicorn Unicorn
+	un unicorn.Unicorn
 
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -81,9 +84,9 @@ func getState() *State {
 	}
 
 	// Irritating conversion function
-	pixels := unicorn.GetPixels()
-	width := unicorn.GetWidth()
-	height := unicorn.GetHeight()
+	pixels := un.GetPixels()
+	width := un.GetWidth()
+	height := un.GetHeight()
 
 	px2 := make([][]uint8arr, width)
 	for x := uint8(0); x < width; x++ {
@@ -100,7 +103,8 @@ func getState() *State {
 }
 
 func savePic(saveFileName string) {
-	pixels := unicorn.GetPixels()
+	pixels := un.GetPixels()
+	// Save to PNG instead
 	data, err := json.Marshal(pixels)
 	if err != nil {
 		log.Printf("Failed to save picture to JSON %v", err)
@@ -131,11 +135,11 @@ func loadPic(saveFileName string) {
 	height := len(newPixels[0])
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
-			r, g, b := rgb(newPixels[x][y])
-			unicorn.SetPixel(uint8(x), uint8(y), r, g, b)
+			r, g, b := unicorn.Rgb(newPixels[x][y])
+			un.SetPixel(uint8(x), uint8(y), r, g, b)
 		}
 	}
-	unicorn.Show()
+	un.Show()
 }
 
 func upgradeHandler(w http.ResponseWriter, r *http.Request) {
@@ -169,11 +173,11 @@ func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 		case noop:
 			// Don't do anything
 		case setPixel:
-			unicorn.SetPixel(cmd.X, cmd.Y, cmd.R, cmd.G, cmd.B)
-			unicorn.Show()
+			un.SetPixel(cmd.X, cmd.Y, cmd.R, cmd.G, cmd.B)
+			un.Show()
 		case clear:
-			unicorn.Clear()
-			unicorn.Show()
+			un.Clear()
+			un.Show()
 		case save:
 			savePic(cmd.SaveName)
 		case load:
@@ -184,19 +188,6 @@ func upgradeHandler(w http.ResponseWriter, r *http.Request) {
 		broadcastCh <- getState()
 	}
 }
-
-/*func handleSdlEvents() {
-	running := true
-	for running {
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch event.(type) {
-			case *sdl.QuitEvent:
-				running = false
-				break
-			}
-		}
-	}
-}*/
 
 func handleClients() {
 	for {
@@ -212,19 +203,18 @@ func handleClients() {
 }
 
 func main() {
-	uni, err := GetUnicorn()
+	uni, err := unicorn.GetUnicorn()
 	if err != nil {
 		log.Fatalf("Couldn't get a unicorn :( %v", err)
 	}
-	unicorn = uni
+	un = uni
 
 	log.Println("Starting server on port 3001")
 	http.Handle("/", http.FileServer(http.Dir("build")))
 	http.HandleFunc("/ws", upgradeHandler)
 	go http.ListenAndServe(":3001", nil)
-	//go handleClients()
-    handleClients()
-	//handleSdlEvents()
+	go handleClients()
+	un.MainLoop()
 }
 
 func doBroadcast(obj interface{}) {
@@ -238,5 +228,3 @@ func doBroadcast(obj interface{}) {
 		}
 	}
 }
-
-
