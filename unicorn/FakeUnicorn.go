@@ -74,7 +74,7 @@ func (f *FakeUnicorn) Show() {
 	width, height := f.GetWidth(), f.GetHeight()
 	for x := uint8(0); x < width; x++ {
 		for y := uint8(0); y < height; y++ {
-			r, g, b := rgb(f.pixels[x][y])
+			r, g, b := Rgb(f.pixels[x][y])
 			if err := f.renderer.SetDrawColor(r, g, b, uint8(255)); err != nil {
 				panic(err)
 			}

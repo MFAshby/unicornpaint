@@ -68,6 +68,6 @@ func makePixels(width, height uint8) [][][]uint8 {
 	return pixels
 }
 
-func rgb(pixel []uint8) (uint8, uint8, uint8) {
+func Rgb(pixel []uint8) (uint8, uint8, uint8) {
 	return pixel[0], pixel[1], pixel[2]
 }
