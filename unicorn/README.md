@@ -1,4 +1,4 @@
-A go library for interacting with Raspberry Pi Unicorn HAT HD, with a cimilar API to the official library https://github.com/pimoroni/unicorn-hat-hd
+A go library for interacting with Raspberry Pi Unicorn HAT HD, with a similar API to the official library https://github.com/pimoroni/unicorn-hat-hd
 
 Includes a simulator when running on amd64 and 386 linux PCs.
 

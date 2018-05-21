@@ -6,6 +6,8 @@ import (
 	"github.com/ecc1/spi"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 type RealUnicorn struct {
@@ -65,9 +67,9 @@ func (u *RealUnicorn) Close() error {
 
 // MainLoop ...
 // Do nothing until SIGTERM, then close the SPI library
-func MainLoop() {
+func (u *RealUnicorn) MainLoop() {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<- c
-	Close()
+	<-c
+	u.Close()
 }
