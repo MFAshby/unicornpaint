@@ -6,6 +6,7 @@ import (
 	"github.com/ecc1/spi"
 	"log"
 	"os"
+	"os/signal"
 	"syscall"
 )
 
