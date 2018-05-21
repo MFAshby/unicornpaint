@@ -3,10 +3,9 @@
 package unicorn
 
 import (
-	//"golang.org/x/exp/io/spi"
-	"log"
-
 	"github.com/ecc1/spi"
+	"log"
+	"os"
 )
 
 type RealUnicorn struct {
@@ -50,7 +49,6 @@ func (u *RealUnicorn) Show() {
 		}
 	}
 	// Write to the device
-	//err := u.device.Tx(write, nil)
 	err := u.device.Transfer(write)
 	if err != nil {
 		log.Printf("Error writing to SPI device %v", err)
@@ -63,4 +61,13 @@ func (u *RealUnicorn) Off() {
 
 func (u *RealUnicorn) Close() error {
 	return u.device.Close()
+}
+
+// MainLoop ...
+// Do nothing until SIGTERM, then close the SPI library
+func MainLoop() {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	<- c
+	Close()
 }

@@ -21,6 +21,9 @@ type Unicorn interface {
 
 	// Turns off the LEDs
 	Off()
+
+	// Unicorn needs to be in charge of the main thread
+	MainLoop()
 }
 
 // GetUnicorn ...

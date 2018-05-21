@@ -96,3 +96,19 @@ func (f *FakeUnicorn) Show() {
 func (f *FakeUnicorn) Off() {
 	f.Close()
 }
+
+// MainLoop ...
+// Handle UI events so OS doesn't think we're frozen
+func (f *FakeUnicorn) MainLoop() {
+	running := true
+	for running {
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				println("Quit")
+				running = false
+				break
+			}
+		}
+	}
+}
