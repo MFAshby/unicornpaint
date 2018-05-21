@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gorilla/websocket"
-	//"github.com/veandco/go-sdl2/sdl"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path"
 	"strings"
+
+	"github.com/gorilla/websocket"
 
 	"github.com/MFAshby/unicornpaint/unicorn"
 )
