@@ -1,3 +1,5 @@
+// +build linux,386 linux,amd64
+
 package unicorn
 
 import "github.com/veandco/go-sdl2/sdl"

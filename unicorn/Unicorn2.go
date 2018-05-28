@@ -42,11 +42,9 @@ func (u *BaseUnicorn2) SetGif(g *gif.GIF) {
 	u.g = g
 }
 
-// StartRender ...
-// Starts rendering the image. If it's an animated image,
-// renders animation frames. Return a channel to stop the
-// image rendering.
-func (u *FakeUnicorn2) StartRender() chan bool {
+// StartRenderBase ...
+// Deals with the timing aspect of animated GIFs
+func (u *BaseUnicorn2) StartRenderBase(renderImage func(image.Image)) chan bool {
 	stopChan := make(chan bool)
 	go func() {
 		timer := time.NewTimer(0)
@@ -61,8 +59,8 @@ func (u *FakeUnicorn2) StartRender() chan bool {
 				gf := u.GetGif()
 				im := gf.Image[imageIndex]
 				delay := gf.Delay[imageIndex] //100ths of a second, 10^-2
-				u.renderImage(im)
-				
+				renderImage(im)
+
 				timer.Reset(time.Duration(delay * 10000000)) // nanoseconds 10^-9 sec
 				imageIndex = (imageIndex + 1) % len(gf.Image)
 			}

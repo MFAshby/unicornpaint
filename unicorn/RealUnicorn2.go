@@ -60,6 +60,12 @@ func NewUnicorn2() (*RealUnicorn2, error) {
 	}, nil
 }
 
+// StartRender ...
+// Passes through to base to actually do the render
+func (u *RealUnicorn2) StartRender() chan bool {
+	return u.StartRenderBase(u.renderImage)
+}
+
 // MainLoop ...
 // Just blocks until sigterm
 func (u *RealUnicorn2) MainLoop() {

@@ -1,3 +1,5 @@
+// +build linux,386 linux,amd64
+
 package unicorn
 
 import (
@@ -35,6 +37,10 @@ func (u *FakeUnicorn2) renderImage(im image.Image) {
 		}
 	}
 	u.renderer.Present()
+}
+
+func (u *FakeUnicorn2) StartRender() chan bool {
+	return u.StartRenderBase(u.renderImage)
 }
 
 func NewUnicorn2() (*FakeUnicorn2, error) {
