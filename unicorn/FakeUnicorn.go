@@ -8,10 +8,7 @@ import (
 
 type FakeUnicorn struct {
 	BaseUnicorn
-	displayWidth  int32
-	displayHeight int32
-	window        *sdl.Window
-	renderer      *sdl.Renderer
+	*BaseFakeUnicorn
 }
 
 // NewUnicorn ...
@@ -19,7 +16,9 @@ type FakeUnicorn struct {
 func NewUnicorn() (*FakeUnicorn, error) {
 	width := uint8(16)
 	height := uint8(16)
-	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
+
+	baseFake, err := NewBaseFakeUnicorn(300, 300)
+	if err != nil {
 		return nil, err
 	}
 
@@ -27,47 +26,10 @@ func NewUnicorn() (*FakeUnicorn, error) {
 		BaseUnicorn{
 			pixels: makePixels(width, height),
 		},
-		300,
-		300,
-		nil,
-		nil,
+		baseFake,
 	}
-	if err := unicorn.createWindow(); err != nil {
-		unicorn.Close()
-		return nil, err
-	}
-	if err := unicorn.createRenderer(); err != nil {
-		unicorn.Close()
-		return nil, err
-	}
+
 	return unicorn, nil
-}
-
-func (f *FakeUnicorn) createWindow() error {
-	window, err := sdl.CreateWindow("Fake Unicorn",
-		sdl.WINDOWPOS_UNDEFINED,
-		sdl.WINDOWPOS_UNDEFINED,
-		f.displayWidth,
-		f.displayHeight,
-		sdl.WINDOW_SHOWN)
-	f.window = window
-	return err
-}
-
-func (f *FakeUnicorn) createRenderer() error {
-	renderer, err := sdl.CreateRenderer(f.window, -1, sdl.RENDERER_ACCELERATED)
-	f.renderer = renderer
-	return err
-}
-
-func (f *FakeUnicorn) Close() error {
-	if f.window != nil {
-		f.window.Destroy()
-	}
-	if f.renderer != nil {
-		f.renderer.Destroy()
-	}
-	return nil
 }
 
 func (f *FakeUnicorn) Show() {
@@ -95,20 +57,4 @@ func (f *FakeUnicorn) Show() {
 
 func (f *FakeUnicorn) Off() {
 	f.Close()
-}
-
-// MainLoop ...
-// Handle UI events so OS doesn't think we're frozen
-func (f *FakeUnicorn) MainLoop() {
-	running := true
-	for running {
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch event.(type) {
-			case *sdl.QuitEvent:
-				println("Quit")
-				running = false
-				break
-			}
-		}
-	}
 }

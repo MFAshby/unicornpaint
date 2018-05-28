@@ -3,11 +3,12 @@
 package unicorn
 
 import (
-	"github.com/ecc1/spi"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/ecc1/spi"
 )
 
 type RealUnicorn struct {
