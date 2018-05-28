@@ -1,3 +1,5 @@
+// +build ignore
+
 package main
 
 import (
@@ -8,6 +10,8 @@ import (
 	"image/draw"
 	"image/gif"
 	"io/ioutil"
+	"log"
+	"os"
 	"time"
 
 	"github.com/MFAshby/unicornpaint/unicorn"
@@ -72,8 +76,8 @@ func renderGif(un unicorn.Unicorn, gf *gif.GIF) {
 }
 
 func main() {
-	b1, _ := ioutil.ReadFile("saves/modern")
-	b2, _ := ioutil.ReadFile("saves/modern2")
+	b1, _ := ioutil.ReadFile("saves/rain1")
+	b2, _ := ioutil.ReadFile("saves/rain2")
 
 	px1 := [][][]uint8{}
 	json.Unmarshal(b1, &px1)
@@ -88,19 +92,19 @@ func main() {
 		Delay: []int{50, 50}, // 100ths of a second
 	}
 
-	// f1, err := os.Create("saves/modern.gif")
-	// if err != nil {
-	// 	log.Fatalf("Error opening GIF file to write %v", err)
-	// }
-	// defer f1.Close()
-	// err = gif.EncodeAll(f1, gf)
-	// if err != nil {
-	// 	log.Printf("Error writing GIF %v", err)
-	// }
+	f1, err := os.Create("saves/rain.gif")
+	if err != nil {
+		log.Fatalf("Error opening GIF file to write %v", err)
+	}
+	defer f1.Close()
+	err = gif.EncodeAll(f1, gf)
+	if err != nil {
+		log.Printf("Error writing GIF %v", err)
+	}
 
-	un, _ = unicorn.NewUnicorn()
+	// un, _ = unicorn.NewUnicorn()
 
-	go renderGif(un, gf)
+	// go renderGif(un, gf)
 
-	un.MainLoop()
+	// un.MainLoop()
 }
