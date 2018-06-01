@@ -9,7 +9,7 @@ import (
 )
 
 type FakeUnicorn2 struct {
-	BaseUnicorn2
+	*BaseUnicorn2
 	*BaseFakeUnicorn
 }
 
@@ -49,7 +49,7 @@ func NewUnicorn2() (*FakeUnicorn2, error) {
 		return nil, err
 	}
 	return &FakeUnicorn2{
-		BaseUnicorn2{},
+		NewBaseUnicorn2(),
 		baseFake,
 	}, nil
 }

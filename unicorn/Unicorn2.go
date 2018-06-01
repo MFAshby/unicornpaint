@@ -5,6 +5,7 @@ package unicorn
 
 import (
 	"image"
+	"image/color/palette"
 	"image/gif"
 	"time"
 )
@@ -18,7 +19,7 @@ type Unicorn2 interface {
 	SetGif(*gif.GIF)
 
 	// Starts the rendering goroutine
-	StartRender()
+	StartRender() chan bool
 
 	// Must be implemented to actually render the image to device
 	renderImage(image.Image)
@@ -42,6 +43,23 @@ func (u *BaseUnicorn2) SetGif(g *gif.GIF) {
 	u.g = g
 }
 
+func NewBaseUnicorn2() *BaseUnicorn2 {
+	im := image.NewPaletted(
+		image.Rect(0, 0, 16, 16),
+		palette.WebSafe)
+
+	gf := &gif.GIF{
+		Image:           []*image.Paletted{im},
+		Delay:           []int{50},
+		Disposal:        []byte{gif.DisposalBackground},
+		BackgroundIndex: 0, // This is black in the websafe palette
+	}
+
+	return &BaseUnicorn2{
+		g: gf,
+	}
+}
+
 // StartRenderBase ...
 // Deals with the timing aspect of animated GIFs
 func (u *BaseUnicorn2) StartRenderBase(renderImage func(image.Image)) chan bool {
@@ -57,6 +75,12 @@ func (u *BaseUnicorn2) StartRenderBase(renderImage func(image.Image)) chan bool 
 				running = false
 			case <-timer.C:
 				gf := u.GetGif()
+
+				// Image could change underneath us, but there should always be 1 image at least.
+				if imageIndex >= len(gf.Image) {
+					imageIndex = 0
+				}
+
 				im := gf.Image[imageIndex]
 				delay := gf.Delay[imageIndex] //100ths of a second, 10^-2
 				renderImage(im)

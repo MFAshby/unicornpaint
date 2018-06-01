@@ -13,7 +13,7 @@ import (
 )
 
 type RealUnicorn2 struct {
-	BaseUnicorn2
+	*BaseUnicorn2
 	device *spi.Device
 }
 
@@ -55,7 +55,7 @@ func NewUnicorn2() (*RealUnicorn2, error) {
 		return nil, err
 	}
 	return &RealUnicorn2{
-		BaseUnicorn2{},
+		NewBaseUnicorn2(),
 		dev,
 	}, nil
 }
