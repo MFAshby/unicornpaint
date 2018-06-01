@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './App.css'
-import { rgb, xy, findContiguousPixels, getPixel, rotatePixelsClock, rotatePixelsCounterClock } from './Utils'
-import { setPixel, clear, noop, save, load } from './Actions'
+import { rgb, xy, findContiguousPixels, getPixel, rotatePixelsClock, rotatePixelsCounterClock, readGifFrames } from './Utils'
+import { setPixel, clear, noop, save, load, addFrame, removeFrame } from './Actions'
 import Palette from './Palette'
 import PaintArea from './PaintArea'
 import Toolkit from './Toolkit'
@@ -9,48 +9,68 @@ import ColorIndicator from './ColorIndicator'
 import ConnectedIndicator from './ConnectedIndicator'
 import LoadDialog from './LoadDialog'
 import SaveDialog from './SaveDialog'
+import FrameControl from './FrameControl'
 import { Timeline } from 'react-twitter-widgets'
+import '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css'
+import '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
+import '@fortawesome/fontawesome-free-webfonts/css/fa-regular.css'
+import '@fortawesome/fontawesome-free-webfonts/css/fa-brands.css'
 
 const tools = [
   {
     name: "paint",
     icon: "fas fa-pencil-alt",
-    action: function (x, y) {
+    action: function (x, y, frame) {
       let { r, g, b } = rgb(this.state.selectedColor)
-      setPixel(this._websocket, x, y, r, g, b)
+      setPixel(this._websocket, x, y, r, g, b, frame)
     }
   },
   {
     name: "fill",
     icon: "fab fa-bitbucket",
-    action: function (x, y) {
-      let pixelsToColor = findContiguousPixels(x, y, this.state.pixels)
+    action: function (x, y, frame) {
+      let pixelsToColor = findContiguousPixels(x, y, this.state.frames[frame])
       pixelsToColor.forEach((coord) => {
         let px = { ...xy(coord), ...rgb(this.state.selectedColor) }
-        setPixel(this._websocket, px.x, px.y, px.r, px.g, px.b)
+        setPixel(this._websocket, px.x, px.y, px.r, px.g, px.b, frame)
       })
     }
   },
   {
     name: "erase",
     icon: "fas fa-eraser",
-    action: function (x, y) {
-      setPixel(this._websocket, x, y, 0, 0, 0)
+    action: function (x, y, frame) {
+      setPixel(this._websocket, x, y, 0, 0, 0, frame)
     },
   },
   {
     name: "pick",
     icon: "fas fa-eye-dropper",
-    action: function (x, y) {
+    action: function (x, y, frame) {
       let color = getPixel(x, y, this.state.pixels)
       this.setState({ selectedColor: color })
     },
   },
   {
+    name: "add frame",
+    icon: "far fa-plus-square",
+    onSelect: function () {
+      addFrame(this._websocket, this.state.selectedFrame+1, 50)
+    }
+  },
+  {
+    name: "remove frame",
+    icon: "far fa-minus-square",
+    onSelect: function () {
+      removeFrame(this._websocket, this.state.selectedFrame)
+    }
+  },
+  {
     name: "rotate-clockwise",
     icon: "fas fa-redo",
     onSelect: function () {
-      let newPixels = rotatePixelsClock(this.state.pixels)
+      let pixels = this.state.frames[this.state.selectedFrame]
+      let newPixels = rotatePixelsClock(pixels)
       this._setAllPixels(newPixels)
     }
   },
@@ -58,18 +78,11 @@ const tools = [
     name: "rotate-anticlockwise",
     icon: "fas fa-undo",
     onSelect: function () {
-      let newPixels = rotatePixelsCounterClock(this.state.pixels)
+      let pixels = this.state.frames[this.state.selectedFrame]
+      let newPixels = rotatePixelsCounterClock(pixels)
       this._setAllPixels(newPixels)
     }
   },
-  // { 
-  //   name: "lighten", 
-  //   icon: "far fa-sun"
-  // },
-  // { 
-  //   name: "darken", 
-  //   icon: "fas fa-sun"
-  // },
   {
     name: "save",
     icon: "fas fa-save",
@@ -100,14 +113,18 @@ class App extends Component {
     this.state = {
       connected: false,
       // Data from server
-      pixels: [],
+      frames: [],
       saves: [],
+
       // Local data
+      selectedFrame: 0,
       selectedColor: [0, 0, 0],
       selectedTool: tools[0],
       showingSave: false,
       showingLoad: false,
     }
+
+
     this._applyTool = this._applyTool.bind(this)
     this._selectTool = this._selectTool.bind(this)
     this._connectWebsocket = this._connectWebsocket.bind(this)
@@ -121,9 +138,17 @@ class App extends Component {
   }
 
   _onMessage({ data }) {
-    let state = JSON.parse(data)
+    let { imageData, saves } = JSON.parse(data)
+    let frames = readGifFrames(imageData)
+
+    let selectedFrame = this.state.selectedFrame >= frames.length ? 
+      frames.length - 1 :
+      this.state.selectedFrame
+    
     this.setState({
-      ...state // Includes pixels and saves
+      frames: frames,
+      saves: saves,
+      selectedFrame: selectedFrame,
     })
   }
 
@@ -162,7 +187,8 @@ class App extends Component {
     if (!action) {
       return
     }
-    action.bind(this)(x, y)
+    let selectedFrame = this.state.selectedFrame
+    action.bind(this)(x, y, selectedFrame)
   }
 
   _selectTool(tool) {
@@ -191,12 +217,15 @@ class App extends Component {
       for (var y = 0; y < height; y++) {
         let px = getPixel(x, y, newPixels)
         let { r, g, b } = rgb(px)
-        setPixel(this._websocket, x, y, r, g, b)
+        let selectedFrame = this.state.selectedFrame
+        setPixel(this._websocket, x, y, r, g, b, selectedFrame)
       }
     }
   }
 
   render() {
+    let frame = this.state.selectedFrame
+    let pixels = this.state.frames[frame] || []
     return (
       <div className="container">
         <div className="header">
@@ -204,9 +233,13 @@ class App extends Component {
           <ConnectedIndicator connected={this.state.connected} />
         </div>
         <div className="paintContainer">
+          <FrameControl 
+            frames={this.state.frames} 
+            selectedFrame={this.state.selectedFrame}
+            onFrameSelected={ frame => this.setState({selectedFrame: frame}) }/>
           <div className="paint">
             <PaintArea
-              data={this.state.pixels}
+              data={pixels}
               onTool={this._applyTool} />
           </div>
           <div className="tools">

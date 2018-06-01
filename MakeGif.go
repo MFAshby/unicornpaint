@@ -91,8 +91,16 @@ func main() {
 		Image: []*image.Paletted{im1, im2},
 		Delay: []int{50, 50}, // 100ths of a second
 	}
+	// im := image.NewPaletted(
+	// 	image.Rect(0, 0, 16, 16),
+	// 	palette.WebSafe)
 
-	f1, err := os.Create("saves/rain.gif")
+	// gf := &gif.GIF{
+	// 	Image: []*image.Paletted{im},
+	// 	Delay: []int{100},
+	// }
+
+	f1, err := os.Create("saves/blank.gif")
 	if err != nil {
 		log.Fatalf("Error opening GIF file to write %v", err)
 	}

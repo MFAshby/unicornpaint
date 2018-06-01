@@ -1,3 +1,6 @@
+import base64js from 'base64-js'
+import omggif from 'omggif'
+
 /**
  * Converts RGB array to named object
  * @param {[]} item, a length 3 array containing 8 bit RGB value
@@ -21,6 +24,11 @@ function xy(item) {
     }
 }
 
+/**
+ * Compares colors. 
+ * Colors are either 3-element arrays [r, g, b]
+ * Or objects with .r .g .b members
+ */
 function colorEqual(item1, item2) {
     if (!item1 || !item2) {
         return false
@@ -36,6 +44,11 @@ function colorEqual(item1, item2) {
         && item1.b === item2.b
 }
 
+/**
+ * Compares 2 coordinate values
+ * @param { [x, y] or {x: y:} } item1 
+ * @param { [x, y] or {x: y:} } item2 
+ */
 function coordsEqual(item1, item2) {
     if (!item1 || !item2) {
         return false
@@ -51,6 +64,13 @@ function coordsEqual(item1, item2) {
         && item1.y === item2.y
 }
 
+/**
+ * If I ever want to change the pixel format...
+ * I should really route all access to pixels through here.
+ * @param {number} x 
+ * @param {number} y 
+ * @param {[][][]} pixels 
+ */
 function getPixel(x, y, pixels) {
     let column = pixels[x]
     if (!column) {
@@ -59,6 +79,18 @@ function getPixel(x, y, pixels) {
     return column[y]
 }
 
+/**
+ * Finds contiguous regions of pixels of the same color.
+ * Returns an array of the x & y coordinates of every pixel in the region.
+ * Doesn't jump corners: only pixels that share a side are considered to 
+ * join up.
+ * 
+ * @param {number} x 
+ * @param {number} y 
+ * @param {[][]]} pixels 
+ * @param {[]]} targetColor 
+ * @param {[][]]} contiguousPixels 
+ */
 function findContiguousPixels(x, y, pixels, targetColor = getPixel(x, y, pixels), contiguousPixels=[[x, y]]) {
     let adjescent = [
       [x-1, y],
@@ -111,6 +143,14 @@ function rotatePixelsClock(pixels) {
     return transformPixels(pixels, rotateClock)
 }
 
+/**
+ * Apply an arbitrary transform to some pixels.
+ * Does not modify the original pixels, just returns the new ones
+ * 
+ * @param {[][][]]} pixels 
+ * @param {(x, y, width, height) => { newx: newy: }} transform 
+ * @returns {[][][]} newPixels
+ */
 function transformPixels(pixels, transform) {
     let width = pixels.length
     let height = pixels[0].length
@@ -133,6 +173,46 @@ function transformPixels(pixels, transform) {
     return newPixels
 }
 
+/**
+ * Reads all frames from a GIF image, returns them as 3d arrays (x, y, color component)
+ * @param {string} base64GifData The GIF image encoded as base64
+ */
+function readGifFrames(base64GifData) {
+    let imageBytes = base64js.toByteArray(base64GifData)
+    let gifReader = new omggif.GifReader(imageBytes)
+    
+    let { width, height } = gifReader
+    let numFrames = gifReader.numFrames()
+    let frames = []
+
+    for (var i=0; i<numFrames; i++) {
+      let rawPixels = new Array(width * height * 4)
+      gifReader.decodeAndBlitFrameRGBA(i, rawPixels)
+
+      // Create the x, y array upfront
+      let pixels = new Array(width)
+      for (var y=0; y<height; y++) {
+        pixels[y] = new Array(height)
+      }
+      frames.push(pixels)
+
+      // Copy pixels to out array. The data provided is provided in rows
+      var ix = 0
+      for (var y=0; y<height; y++) {
+        for (var x=0; x<width; x++) {
+          let r = rawPixels[ix++]
+          let g = rawPixels[ix++]
+          let b = rawPixels[ix++]
+        //   let a = rawPixels[ix++]
+        ix++ // Ignore the alpha component
+          pixels[x][y] = [r, g, b]
+        }
+      }
+    }
+
+    return frames
+}
+
 export {
     xy,
     rgb,
@@ -141,6 +221,7 @@ export {
     findContiguousPixels,
     getPixel,
     rotatePixelsClock,
-    rotatePixelsCounterClock
+    rotatePixelsCounterClock,
+    readGifFrames
 }
 
