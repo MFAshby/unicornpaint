@@ -3,6 +3,8 @@ const SET_PIXEL = 'SET_PIXEL'
 const CLEAR = 'CLEAR'
 const SAVE = 'SAVE'
 const LOAD = 'LOAD'
+const ADD_FRAME = "ADD_FRAME"
+const REMOVE_FRAME = "REMOVE_FRAME"
 
 function sendAction(websocket, action) {
   let actionStr = JSON.stringify(action)
@@ -23,14 +25,15 @@ function load(websocket, saveName) {
   })
 }
 
-function setPixel(websocket, x, y, r, g, b) {
+function setPixel(websocket, x, y, r, g, b, frame) {
   sendAction(websocket, {
     type: SET_PIXEL,
     x: x,
     y: y,
     r: r, 
     g: g,
-    b: b
+    b: b,
+    frame: frame
   })
 }
 
@@ -42,10 +45,27 @@ function noop(websocket) {
   sendAction(websocket, { type: NO_OP })
 }
 
+function addFrame(websocket, frame = 1, delay = 50) {
+  sendAction(websocket, { 
+    type: ADD_FRAME, 
+    frame: frame, 
+    delay: delay
+  })
+}
+
+function removeFrame(websocket, frame = 1) {
+  sendAction(websocket, {
+    type: REMOVE_FRAME, 
+    frame: frame
+  })
+}
+
 export {
     setPixel, 
     clear, 
     noop,
     save,
-    load
+    load,
+    addFrame,
+    removeFrame
 }

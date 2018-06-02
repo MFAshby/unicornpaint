@@ -4,11 +4,18 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Go Server",
             "type": "go",
             "request": "launch",
             "program": "${workspaceRoot}/Server.go"
+        },
+        {
+            "name": "Go Server 2",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceRoot}/Server2.go"
         },
         {
             "name": "Python: Current File",

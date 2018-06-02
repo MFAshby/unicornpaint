@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import './fontawesome-all.min.js'
 
 class ToolKitItem extends Component {
   render() {
