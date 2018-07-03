@@ -173,10 +173,10 @@ class App extends Component {
   _connectWebsocket() {
     let webSocketProto = window.location.protocol === "https:" ? "wss:" : "ws:"
     var host = window.location.host
-    if (true) {
-      console.log("Dev mode overriding port to 3001")
-      host = window.location.hostname + ":3001"
-    }
+    // if (true) {
+    //   console.log("Dev mode overriding port to 3001")
+    //   host = window.location.hostname + ":3001"
+    // }
     this._websocket = new WebSocket(`${webSocketProto}//${host}/ws`)
     this._websocket.onmessage = this._onMessage
     this._websocket.onopen = this._onOpen
