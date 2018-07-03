@@ -10,7 +10,7 @@ import ConnectedIndicator from './ConnectedIndicator'
 import LoadDialog from './LoadDialog'
 import SaveDialog from './SaveDialog'
 import FrameControl from './FrameControl'
-import { Timeline } from 'react-twitter-widgets'
+import YoutubeEmbed from './YoutubeEmbed'
 import '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fa-regular.css'
@@ -269,16 +269,7 @@ class App extends Component {
               imageData={imageData}/>
         </div>
         <div className="liveFeed">
-          <Timeline 
-            dataSource={{
-              sourceType: 'profile',
-              screenName: 'UnicornPaint',
-            }}
-            options={{
-              tweetLimit: 1,
-              chrome: "noheader nofooter noborders noscrollbar",
-              width: "300px"
-            }}/>
+            <YoutubeEmbed/>
         </div>
         <div>
           {

@@ -25,7 +25,7 @@ body {
 
 .paintContainer {
     display: grid;
-    grid-template-columns: 8fr 32fr 5fr;
+    grid-template-columns: 10fr 32fr 5fr;
     grid-template-rows: 32fr 8fr;
 }
 
@@ -86,6 +86,7 @@ body {
 
     display: flex;
     flex-flow: row wrap;
+    max-width: 400px;
 }
 
 .framePreviewWrapper {

@@ -24,7 +24,7 @@ export default class ColorIndicator extends Component {
                 background: `rgb(${r},${g},${b})`, 
                 color: foreground
             }}>
-            {/* <span>{colorDesc}</span> */}
+            <span>{colorDesc}</span>
         </div>
     }
 }

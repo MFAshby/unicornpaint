@@ -155,7 +155,7 @@ function transformPixels(pixels, transform) {
     let width = pixels.length
     let height = pixels[0].length
     let newPixels = []
-    for (var x = 0; x < width; x++) {
+    for (let x = 0; x < width; x++) {
         let column = []
         for (var y = 0; y < height; y++) {
             column.push([0, 0, 0])
@@ -163,8 +163,8 @@ function transformPixels(pixels, transform) {
         newPixels.push(column)
     }
     
-    for (var x = 0; x < width; x++) {
-      for (var y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
         let px = getPixel(x, y, pixels)
         let {newx, newy} = transform(x, y, width, height)
         newPixels[newx][newy] = px
@@ -191,20 +191,19 @@ function readGifFrames(base64GifData) {
 
       // Create the x, y array upfront
       let pixels = new Array(width)
-      for (var y=0; y<height; y++) {
+      for (let y=0; y<height; y++) {
         pixels[y] = new Array(height)
       }
       frames.push(pixels)
 
       // Copy pixels to out array. The data provided is provided in rows
       var ix = 0
-      for (var y=0; y<height; y++) {
-        for (var x=0; x<width; x++) {
+      for (let y=0; y<height; y++) {
+        for (let x=0; x<width; x++) {
           let r = rawPixels[ix++]
           let g = rawPixels[ix++]
           let b = rawPixels[ix++]
-        //   let a = rawPixels[ix++]
-        ix++ // Ignore the alpha component
+          ix++ // Ignore the alpha component
           pixels[x][y] = [r, g, b]
         }
       }
