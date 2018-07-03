@@ -47,44 +47,27 @@ export default class PaintArea extends Component {
   render() {
     let data = this.props.data
     let height = data[0] ? data[0].length : 0
-    let rows = []
+    let cells = []
     for (var y=height-1; y>=0; y--) {
-      let cells = []
       for (var x=0; x<data.length; x++) {
         let {r, g, b} = rgb(getPixel(x, y, data))
         let ix = x
         let iy = y
-        cells.push(<td
+        cells.push(<div
+          className="paintAreaCell"
           onMouseMove={() => this.handleMouseMove(ix, iy)}
           onClick={() => this.props.onTool(ix, iy)}
           style={{
-            background: `rgb(${r},${g},${b})`,
-            ...styles.paintAreaCell
+            background: `rgb(${r},${g},${b})`
           }}
           key={(ix * 100000) + iy}/>)
       }
-      rows.push(<tr key={y}>{cells}</tr>)
     }
     
     return (
-      <table 
-        draggable={false}>
-        <tbody>
-          {rows}
-        </tbody>
-      </table>
+      <div className="paint">
+          {cells}
+      </div>
     )
-  }
-}
-
-const styles = {
-  paintAreaCell: {
-    width: "20px",
-    height: "20px",
-    minWidth: "20px",
-    minHeight: "20px",
-    maxWidth: "20px",
-    maxHeight: "20px",
-    border: "1px solid grey",
   }
 }

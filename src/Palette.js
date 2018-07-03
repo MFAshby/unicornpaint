@@ -28,35 +28,17 @@ const colorPalette = [
         let selected = rgb(this.props.selectedColor)
         let isSelected = r === selected.r && g === selected.g && b === selected.b
 
-        let style = Object.assign({},
-          {background: `rgb(${r},${g},${b})`},
-          styles.paletteItem,
-          isSelected && styles.selected
-        )
+        let className = isSelected ? "paletteItem selected" : "paletteItem"
 
         return <div
-          onClick={() => this.props.onSelectColor([r, g, b])}
-          style={style} 
-          key={r*10000+g*1000+b}/>
+          key={r*10000+g*1000+b}
+          className={className}
+          style={{background: `rgb(${r},${g},${b})`}} 
+          onClick={() => this.props.onSelectColor([r, g, b])}/>
       })
-      let list1 = paletteListItems.slice(0, paletteListItems.length / 2)
-      let list2 = paletteListItems.slice(paletteListItems.length / 2)
       return (
-        <div>
-          {list1}<br/>
-          {list2}
+        <div className="palette">
+          {paletteListItems}
         </div>)
-    }
-  }
-
-  const styles = {
-    paletteItem: {
-      width: "30px",
-      height: "30px",
-      border: "3px solid black",
-      display: "inline-block",
-    },
-    selected: {
-      border: "3px solid red"
     }
   }

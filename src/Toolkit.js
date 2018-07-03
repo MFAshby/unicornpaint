@@ -23,7 +23,8 @@ export default class Toolkit extends Component {
         selected={tool === this.props.selectedTool}
         onSelectTool={this.props.onSelectTool}/>
     })
-    return <div style={styles.toolkit}>
+    return <div className="tools"
+      style={styles.toolkit}>
       {toolComponents}
     </div>
   }

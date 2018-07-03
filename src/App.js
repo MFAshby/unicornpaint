@@ -47,7 +47,8 @@ const tools = [
     name: "pick",
     icon: "fas fa-eye-dropper",
     action: function (x, y, frame) {
-      let color = getPixel(x, y, this.state.pixels)
+      let pixels = this.state.frames[frame]
+      let color = getPixel(x, y, pixels)
       this.setState({ selectedColor: color })
     },
   },
@@ -115,6 +116,7 @@ class App extends Component {
       // Data from server
       frames: [],
       saves: [],
+      imageData: "",
 
       // Local data
       selectedFrame: 0,
@@ -149,6 +151,7 @@ class App extends Component {
       frames: frames,
       saves: saves,
       selectedFrame: selectedFrame,
+      imageData: imageData,
     })
   }
 
@@ -169,8 +172,11 @@ class App extends Component {
 
   _connectWebsocket() {
     let webSocketProto = window.location.protocol === "https:" ? "wss:" : "ws:"
-    let host = window.location.host
-    // let host = window.location.hostname + ":3001"
+    var host = window.location.host
+    if (true) {
+      console.log("Dev mode overriding port to 3001")
+      host = window.location.hostname + ":3001"
+    }
     this._websocket = new WebSocket(`${webSocketProto}//${host}/ws`)
     this._websocket.onmessage = this._onMessage
     this._websocket.onopen = this._onOpen
@@ -224,38 +230,43 @@ class App extends Component {
   }
 
   render() {
-    let frame = this.state.selectedFrame
-    let pixels = this.state.frames[frame] || []
+    let { selectedFrame, 
+      frames, 
+      imageData,
+      connected, 
+      selectedTool, 
+      selectedColor,
+      saves,
+      showingLoad,
+      showingSave } = this.state
+
+    let pixels = frames[selectedFrame] || []
+
     return (
       <div className="container">
         <div className="header">
           <h1>Unicorn Paint!</h1>
-          <ConnectedIndicator connected={this.state.connected} />
+          <ConnectedIndicator connected={connected} />
         </div>
-        <div className="paintContainer">
-          <FrameControl 
-            frames={this.state.frames} 
-            selectedFrame={this.state.selectedFrame}
-            onFrameSelected={ frame => this.setState({selectedFrame: frame}) }/>
-          <div className="paint">
+        <div className="framePaintContainer">
+          <div className="paintContainer">
             <PaintArea
               data={pixels}
               onTool={this._applyTool} />
-          </div>
-          <div className="tools">
             <Toolkit
               tools={tools}
-              selectedTool={this.state.selectedTool}
+              selectedTool={selectedTool}
               onSelectTool={this._selectTool} />
-          </div>
-          <div className="palette">
             <Palette
-              selectedColor={this.state.selectedColor}
-              onSelectColor={(color) => this.setState({ selectedColor: color })} />
-          </div>  
-          <div className="paintCol">
-            <ColorIndicator color={this.state.selectedColor} />
+              selectedColor={selectedColor}
+              onSelectColor={(color) => this.setState({ selectedColor: color })} />  
+            <ColorIndicator color={selectedColor} />
           </div>
+          <FrameControl 
+              frames={frames} 
+              selectedFrame={selectedFrame}
+              onFrameSelected={ frame => this.setState({selectedFrame: frame}) }
+              imageData={imageData}/>
         </div>
         <div className="liveFeed">
           <Timeline 
@@ -271,23 +282,22 @@ class App extends Component {
         </div>
         <div>
           {
-            this.state.showingLoad
+            showingLoad
             && <LoadDialog
-              saves={this.state.saves}
+              saves={saves}
               onLoad={(drawing) => this._loadDrawing(drawing)}
               onClose={() => this.setState({ showingLoad: false })} />
           }
         </div>
         <div>
           {
-            this.state.showingSave
+            showingSave
             && <SaveDialog
-              saves={this.state.saves}
+              saves={saves}
               onSave={(name) => this._saveDrawing(name)}
               onClose={() => this.setState({ showingSave: false })} />
           }
         </div>
-
       </div>
     );
   }

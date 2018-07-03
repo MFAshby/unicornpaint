@@ -3,54 +3,66 @@ import { rgb, getPixel } from './Utils'
 
 class FramePreview extends Component {
     render() {
-        let width = this.props.pixels.length
-        let height = this.props.pixels[0].length
+        let { pixels, selected, index, onClick } = this.props
+        let width = pixels.length
+        let height = pixels[0].length
 
-        let rows = []
+        let cells = []
         for (var y=height-1; y>=0; y--) {
-            let cells = []
             for (var x=0; x<width; x++) {
-                let {r, g, b} = rgb(getPixel(x, y, this.props.pixels))
-                cells.push(<td
+                let {r, g, b} = rgb(getPixel(x, y, pixels))
+                cells.push(<div
+                    key={`FramePreview ${index} ${x} ${y}`}
+                    className="framePreviewCell"
                     style={{
                         background: `rgb(${r},${g},${b})`,
-                        ...styles.previewPixel
                       }}/>)
             }
-            rows.push(<tr key={y}>{cells}</tr>)
         } 
 
-        let bgColor = this.props.selected ? "red" : "grey"
-        return <table onClick={this.props.onClick} style={{background: bgColor}}><tbody> {rows} </tbody></table>
+        let wrapperClassName = selected ? "framePreviewWrapper selected" : "framePreviewWrapper"
+        return <div 
+            className={wrapperClassName}
+            onClick={onClick}>
+            <span>Frame {index + 1}</span>
+            <div className="framePreview">
+            {cells}
+            </div>
+        </div>
     }
+}
+
+function animationPreview(props) {
+    let { imageData } = props
+    let imgUrl = `url(data:image/gif;base64,${imageData})`
+    return <div className="animationPreviewWrapper">
+        <span>Preview:</span>
+        <div className="animationPreview" 
+            style={{backgroundImage: imgUrl}}/>
+    </div>
 }
 
 export default class FrameControl extends Component {
-    // frames: []
-    // selectedFrame: number
     render() {
         // A series of divs, 1 per frame, 
-        let frames = this.props.frames 
-        let selectedFrame = this.props.selectedFrame 
-        let framePreviews = frames.map((frame, ix) => 
-            <div>
-                <span>Frame {ix+1}</span>
-                <FramePreview 
-                    pixels={frame} 
-                    selected={ix === this.props.selectedFrame}
-                    onClick={() => this.props.onFrameSelected(ix)}/>
-            </div>)
-        return <div style={styles.previewContainer}>{framePreviews}</div>
-    }
-}
+        let { frames, 
+            selectedFrame,
+            onFrameSelected,
+            imageData } = this.props
 
-const styles = {
-    previewcontainer: {
-    },
-    previewTable: {
-    },
-    previewPixel: {
-        width: "4px",
-        height: "4px",
+        let framePreviews = frames.map((frame, ix) => 
+            <FramePreview 
+                key={ix}
+                index={ix}
+                pixels={frame} 
+                selected={ix === selectedFrame}
+                onClick={() => onFrameSelected(ix)}/>)
+
+        
+
+        return <div className="frameControl">
+            {animationPreview({imageData:imageData})}
+            {framePreviews}
+        </div>
     }
 }

@@ -19,19 +19,12 @@ export default class ColorIndicator extends Component {
         }
 
         return <div 
+            className="paintCol"   
             style={{
                 background: `rgb(${r},${g},${b})`, 
-                color: foreground,
-                ...styles.colorIndicator
+                color: foreground
             }}>
-            <span>{colorDesc}</span>
+            {/* <span>{colorDesc}</span> */}
         </div>
-    }
-}
-
-const styles = {
-    colorIndicator: {
-        width: "100px",
-        height: "100px"
     }
 }
