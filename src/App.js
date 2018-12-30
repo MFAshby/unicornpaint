@@ -10,7 +10,6 @@ import ConnectedIndicator from './ConnectedIndicator'
 import LoadDialog from './LoadDialog'
 import SaveDialog from './SaveDialog'
 import FrameControl from './FrameControl'
-import YoutubeEmbed from './YoutubeEmbed'
 import '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fa-regular.css'
@@ -267,9 +266,6 @@ class App extends Component {
               selectedFrame={selectedFrame}
               onFrameSelected={ frame => this.setState({selectedFrame: frame}) }
               imageData={imageData}/>
-        </div>
-        <div className="liveFeed">
-            <YoutubeEmbed/>
         </div>
         <div>
           {
